@@ -1,0 +1,330 @@
+{
+  "meta": {
+    "issuer": "https://auth9.conformance.test",
+    "audience": "db9-conformance",
+    "active_kid": "auth9-conformance-2026",
+    "algorithms": [
+      "RS256",
+      "ES256"
+    ],
+    "note": "Generated from auth9's server minting paths. Do not hand-edit. Timestamps are pinned; accept vectors use a far-future exp so they stay valid under any CI clock."
+  },
+  "jwks": {
+    "keys": [
+      {
+        "alg": "RS256",
+        "e": "AQAB",
+        "kid": "auth9-conformance-2026",
+        "kty": "RSA",
+        "n": "zwnkI-wCyLGJQrYk4MQHuaGxDG5yx3j01enXBsHAhp24WsgE7ASFkdIvkXjrqG_N-UM1MvTZeQHbGWofnzMwCjE4Qc5KoLaK4M0xTVyLisX4Z61PYERlx7P42wOtJdHemwQ0QwwxBuHAOZ12D8uhDVfGJ1VF-9C5DZ7nEz2wnLrKMy7gY-C78CuRtHYZNgbj1c8d3xMGKH8AriFmd2XmYRXAc4DFbDNEt1MG7TGkRaugcuUw1Lo0jj9KQLSCSz8bB1zhlFO73rMeAWvyqMi32k6sbpElc1r5hE5_Pd_wM2W2AT_9x6xlJXqGV5JoSftC0QN595R1_j-gIy9nRePiGQ",
+        "use": "sig"
+      }
+    ]
+  },
+  "vectors": [
+    {
+      "name": "session_password",
+      "description": "Password-login session Access Token: pwd/single-factor, auth_time = the login event; no access_mode (unchanged legacy body).",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLXNlc3Npb24tcGFzc3dvcmQiLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWNvbmZvcm1hbmNlIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.R-m3MsuGbazMk6Z8gd95DCkJhgGQEv5OiN1kWwcB9EHOz4Bek1dcgfJ639AIqSxriYq0bqXNdbfviQmkPLIpBewTpkBL5JA8fbg_92HAsavHuc6JOR3Bl6M--dSx-X0ebwMraK2vTtrCtUXAWMJITNbHm4Eyy1ueOFY-088baQiJ_QyAb3NOEDouQ3l0zuHjXJURhb3FAekf7ri02HVE1T7S0MM7c5r8hcZuiklVGL2am8ZZ61R4CR9R7QypWKryvXEHrCl6dfo8pyEY8EH8F1O3r156l8G975F9o7rpnyTM4Sbz56mr0rsCAacwqvpjvCnsHWfTMybTD7GGsxtFsw",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "acr": "1",
+        "amr": [
+          "pwd"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1767225600,
+        "cred_kind": "access_token",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-session-password",
+        "prefix_present": false,
+        "service_id": "svc-login",
+        "sub": "user-conformance",
+        "tid": "tenant-conformance"
+      }
+    },
+    {
+      "name": "session_anonymous",
+      "description": "Anonymous-Principal session Access Token: anon method / acr 0, owner service_id + access_mode:rw preserved, auth_time = the registration event.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY2Nlc3NfbW9kZSI6InJ3IiwiYWNyIjoiMCIsImFtciI6WyJ1cm46YXV0aDk6YW1yOmFub24iXSwiYXVkIjoiZGI5LWNvbmZvcm1hbmNlIiwiYXV0aF90aW1lIjoxNzY2NjIwODAwLCJjcmVkX2tpbmQiOiJhY2Nlc3NfdG9rZW4iLCJleHAiOjQxMDI0NDQ4MDAsImlhdCI6MTc2NzIyNTYwMCwiaXNzIjoiaHR0cHM6Ly9hdXRoOS5jb25mb3JtYW5jZS50ZXN0IiwianRpIjoiY29uZi1zZXNzaW9uLWFub255bW91cyIsInByZWZpeF9wcmVzZW50IjpmYWxzZSwic2VydmljZV9pZCI6InN2Yy1vd25lciIsInN1YiI6ImFub24tY29uZm9ybWFuY2UiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.ElaoprG91B0Im8AhOk_Ih_gXK1hxqxZCq3rxY_fbcUDxIeYcmKQVWW8Wv9jRihq8o5xlRew5HjKWgkfmcAHCnKI6-cFc9I20V7bcdZCsbHT91PT0zyMRHV9x_FTOqPkB1b-hj5YYWNKY07hZohCfVPyIogxOsue493zfZ5WWLLYl_8yICMBIfU7l6-A-Qm_S-i_TzITdpIVb_dmVIBO86wyQxfeBkoZcGryZFiIPwXZ9sP4taIkqJuUnK4_02YIE1ka1f3JEuaFDRfqMBs8q4gUt-ntybEIAgc4pfu6YvlphRantyI6nJgDxOUsaibPGkVlf6DusqrZLuSZ7QaSdKA",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "access_mode": "rw",
+        "acr": "0",
+        "amr": [
+          "urn:auth9:amr:anon"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1766620800,
+        "cred_kind": "access_token",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-session-anonymous",
+        "prefix_present": false,
+        "service_id": "svc-owner",
+        "sub": "anon-conformance",
+        "tid": "tenant-conformance"
+      },
+      "bearer_gate": true
+    },
+    {
+      "name": "id_token_federated",
+      "description": "OIDC/social id_token: federated method / single-factor, auth_time = the federated event. No cred_kind (id_token, not an Access Token).",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInVybjphdXRoOTphbXI6ZmVkIl0sImF1ZCI6ImRiOS1jb25mb3JtYW5jZSIsImF1dGhfdGltZSI6MTc2NzIyNTYwMCwiZXhwIjo0MTAyNDQ0ODAwLCJpYXQiOjE3NjcyMjU2MDAsImlzcyI6Imh0dHBzOi8vYXV0aDkuY29uZm9ybWFuY2UudGVzdCIsImp0aSI6ImNvbmYtaWQtdG9rZW4tZmVkZXJhdGVkIiwic3ViIjoidXNlci1mZWRlcmF0ZWQiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.RDUpPENRJSSuwPmFbu8UhCbDe8nFINs25ibJICULTm-42jlkvTfqa8DUO_LvHD8xWvp25HD6qRQwiIrZY9dscgWTwgSuWnDBAebTxOIQszN69haOVnhcz00dX4SgNdVuBZF7CurDNIdHz9tVYPWZsgL2KXWSEdg3zc7Vq3ldCMcSb2H3WDaxvbHf8KvG4Igd0W4_KvJBMJxEbn5EkNsNFf6RIYWu4mUi4G4eI7mnoH0xELDWr8huCYJ4QPcBvrlF5Mvt0ejVl-R7isshpdQbwdJBzonzYMam8QeNglWM1ygXnLO-7HuPwRw4-J3zJ3jn48vp5r3YYKfJgvZENE_VWQ",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "acr": "1",
+        "amr": [
+          "urn:auth9:amr:fed"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1767225600,
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-id-token-federated",
+        "sub": "user-federated",
+        "tid": "tenant-conformance"
+      }
+    },
+    {
+      "name": "id_token_federated_email",
+      "description": "Federated id_token carrying a verified email (email + email_verified forwarded only when the IdP marked the address verified).",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInVybjphdXRoOTphbXI6ZmVkIl0sImF1ZCI6ImRiOS1jb25mb3JtYW5jZSIsImF1dGhfdGltZSI6MTc2NzIyNTYwMCwiZW1haWwiOiJ1c2VyQGNvbmZvcm1hbmNlLnRlc3QiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjo0MTAyNDQ0ODAwLCJpYXQiOjE3NjcyMjU2MDAsImlzcyI6Imh0dHBzOi8vYXV0aDkuY29uZm9ybWFuY2UudGVzdCIsImp0aSI6ImNvbmYtaWQtdG9rZW4tZmVkZXJhdGVkLWVtYWlsIiwic3ViIjoidXNlci1mZWRlcmF0ZWQiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.EYM_Ma35etB4PDlwWF8uTnizGMPrW-W6Wujjd7zBs4L3NRrCtgEBUzxqZLw4hpvFb1a1AlIC1LBqcy9_7KDEWlaxx5_NIG50_jZlyHNLQp4Bd9eu5GqmwyNsLL5jB9Nq7Yf38eeKcHDS_S00lO_qsxpzu-hkTH-ZN0ZiZDEMV6I48VYN0lYgU-8acDWfMVuwZiRBYwXacM69iPv83qj3ANtwD-vFaw81n7oD4emzmt13dZth-FLhBqdhTh1MsIrHKDAKOquM1LezjPfG46NCyBI3hbUaA9VI1LC66a0GRh2nrmvCoNxRKI2QDEa4iw64BiYU6t-yDMfgSd740F3o6Q",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "acr": "1",
+        "amr": [
+          "urn:auth9:amr:fed"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1767225600,
+        "email": "user@conformance.test",
+        "email_verified": true,
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-id-token-federated-email",
+        "sub": "user-federated",
+        "tid": "tenant-conformance"
+      }
+    },
+    {
+      "name": "session_refresh_password_carryforward",
+      "description": "Refresh-rotated session (password family): fresh iat/exp but auth_time preserved from the original login (auth_time < iat proves carry-forward).",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcxMzkyMDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLXJlZnJlc2gtcGFzc3dvcmQiLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWNvbmZvcm1hbmNlIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.KYKgEmnxyZo1B9rpOeodS0C0x69KtI_M-2POyk-QFTUW7XD_VaXvDscqCXeAp1G5U9hVQ4eKejWFLuIbf9gnUD1-VjtEOI0HWC5XLiVLzHGpcl5OdYl8U87zy28kWGD7-oX9sniVRHJKQurTKPNwwo_Ctf8-pPWloNBfYl10pJ4CBluFyqRrahEljreqw_To9ylt7cPC8qkCYFfLyTPO7KRp87Nscyfk6Ux7ADlaMPmo0sw0ZWmmCAiIKY8SXAEahpyceUyQbc-YsA0j7AQxbx182lqx9YhIwBCc5AwAP2yGPWmdU2mjUioZzkHHMAw1wRaxFsoDDxBvyNVZe_Gtow",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "acr": "1",
+        "amr": [
+          "pwd"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1767139200,
+        "cred_kind": "access_token",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-refresh-password",
+        "prefix_present": false,
+        "service_id": "svc-login",
+        "sub": "user-conformance",
+        "tid": "tenant-conformance"
+      }
+    },
+    {
+      "name": "session_refresh_federated_carryforward",
+      "description": "Refresh-rotated session (federated family): fed method on the session Access Token, auth_time carried forward from the federated login.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInVybjphdXRoOTphbXI6ZmVkIl0sImF1ZCI6ImRiOS1jb25mb3JtYW5jZSIsImF1dGhfdGltZSI6MTc2NzEzOTIwMCwiY3JlZF9raW5kIjoiYWNjZXNzX3Rva2VuIiwiZXhwIjo0MTAyNDQ0ODAwLCJpYXQiOjE3NjcyMjU2MDAsImlzcyI6Imh0dHBzOi8vYXV0aDkuY29uZm9ybWFuY2UudGVzdCIsImp0aSI6ImNvbmYtcmVmcmVzaC1mZWRlcmF0ZWQiLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWZlZGVyYXRlZCIsInRpZCI6InRlbmFudC1jb25mb3JtYW5jZSJ9.Wo1twElJKJi5SFQeN-MKN6P8Y8oA72XcuETPhrPQjP7ku1i_7-48FQ4jzEH1nxFeFOpXXDfyqO_rUUFO49ZdEcDTUWH9WeorhcC9rsic-2fCiCZyzZwiKicP5IE4SmSUhXKS_VPKLgE1gFlQNRyHwSgStrrKgYStVVnhFdvfHf5127sR08bhTs_k4Ko0ihMHXQZ9MEm-gexVoZ20ueik3eKXn7PFMGI3RB1l1mvmzlGbn2fAUyO7miqBUjE99yi53dBKy2qhwLSPU1Z3r0r_NlzRwsnaHLub8J5fvpQzNK1NEBdQR-3xN2Q_4dmR9EfOpVQenKGs4xSu1x385glvRg",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "acr": "1",
+        "amr": [
+          "urn:auth9:amr:fed"
+        ],
+        "aud": "db9-conformance",
+        "auth_time": 1767139200,
+        "cred_kind": "access_token",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-refresh-federated",
+        "prefix_present": false,
+        "service_id": "svc-login",
+        "sub": "user-federated",
+        "tid": "tenant-conformance"
+      }
+    },
+    {
+      "name": "exchange_access_token",
+      "description": "Machine-exchange Access Token (frozen exchange shape): sub/tid/service_id/cred_kind/access_mode/prefix_present and NO amr/acr/auth_time (machine authentication context is degenerate; shape deliberately unamended).",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY2Nlc3NfbW9kZSI6InJ3IiwiYXVkIjoiZGI5LWNvbmZvcm1hbmNlIiwiY3JlZF9raW5kIjoiYWNjZXNzX3Rva2VuIiwiZXhwIjo0MTAyNDQ0ODAwLCJpYXQiOjE3NjcyMjU2MDAsImlzcyI6Imh0dHBzOi8vYXV0aDkuY29uZm9ybWFuY2UudGVzdCIsImp0aSI6ImNvbmYtZXhjaGFuZ2UtYWNjZXNzLXRva2VuIiwicHJlZml4X3ByZXNlbnQiOmZhbHNlLCJzZXJ2aWNlX2lkIjoic3ZjLW93bmVyIiwic3ViIjoic3ZjLW1hY2hpbmUiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.Zf4SjC5Cy72bGK0oN3-ZHdGBjQUuX40BlnAdCrlyKK8UO3iKVRjKwodxeuMmBfbNGMK21ZyN7FFQIfKndpG2Dg-DMP7EWv6F6MKwCanlBzgEzQCs8SR9K8MMT5hvQctSemgHqC-kZ3VpP06ciPMNiwV2598rlQKiGxSFvhFiAELjLDti_MkXeQKLuX0Wf-ehvU0dHZASNotlLsQj6Cpimda2WmHPuanWF3b4h6rar641FlEEJ39imNhJFjzFgYWYzW3p8REtRnCEZTRP_H7SodwDnu1Sj6SNFkYc679_euLlZenZGsOtU-9krOPXvgDa9DWMeMY-rz0H7CyAg745eA",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "access_mode": "rw",
+        "aud": "db9-conformance",
+        "cred_kind": "access_token",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-exchange-access-token",
+        "prefix_present": false,
+        "service_id": "svc-owner",
+        "sub": "svc-machine",
+        "tid": "tenant-conformance"
+      },
+      "bearer_gate": true
+    },
+    {
+      "name": "exchange_connect",
+      "description": "Machine-exchange connect credential: cred_kind=connect, prefix_present=true. Wire-valid, but the consumer-side bearer gate rejects it as a non-bearer kind.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY2Nlc3NfbW9kZSI6InJvIiwiYXVkIjoiZGI5LWNvbmZvcm1hbmNlIiwiY3JlZF9raW5kIjoiY29ubmVjdCIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLWV4Y2hhbmdlLWNvbm5lY3QiLCJwcmVmaXhfcHJlc2VudCI6dHJ1ZSwic2VydmljZV9pZCI6InN2Yy1vd25lciIsInN1YiI6InN2Yy1tYWNoaW5lIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.yAcjzYAcyb2W--WtKo-aaJ6iphKw7bh_-0SAIrGPFydwPwXNBxS5DG7c0A6VvGGl0ub9omL6OLdkAh2v0UJewB6QwqvumnQK5zp-4Ul6kM9qk2wtNXd_27VLVlbu3yt_YZhdayyRy1HhKxuu9viAHd1VPHpsBxEFSQovjscrNIqSbUQpwKRXQH2pxUMbVF3r6nTnwYDFjbwgamTtSB13Tt-GzIdbLlOOvELezel7tdr_X5q8RZ0Z3ebSAZUprHsCLTn5oWEc7a0rdps5Z-wVsOnISjuJeJ01BPjyhoM-Swmu86tHlAFaJrG4CBWW_gEz0OBCeicFF5e0rEZo6G0m_A",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "access_mode": "ro",
+        "aud": "db9-conformance",
+        "cred_kind": "connect",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-exchange-connect",
+        "prefix_present": true,
+        "service_id": "svc-owner",
+        "sub": "svc-machine",
+        "tid": "tenant-conformance"
+      },
+      "bearer_gate": false
+    },
+    {
+      "name": "exchange_publishable",
+      "description": "Machine-exchange publishable credential: cred_kind=publishable, prefix_present=true, allowed_origins present. Non-bearer kind.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY2Nlc3NfbW9kZSI6InJvIiwiYWxsb3dlZF9vcmlnaW5zIjpbImh0dHBzOi8vYXBwLmNvbmZvcm1hbmNlLnRlc3QiXSwiYXVkIjoiZGI5LWNvbmZvcm1hbmNlIiwiY3JlZF9raW5kIjoicHVibGlzaGFibGUiLCJleHAiOjQxMDI0NDQ4MDAsImlhdCI6MTc2NzIyNTYwMCwiaXNzIjoiaHR0cHM6Ly9hdXRoOS5jb25mb3JtYW5jZS50ZXN0IiwianRpIjoiY29uZi1leGNoYW5nZS1wdWJsaXNoYWJsZSIsInByZWZpeF9wcmVzZW50Ijp0cnVlLCJzZXJ2aWNlX2lkIjoic3ZjLW93bmVyIiwic3ViIjoic3ZjLW1hY2hpbmUiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.sVkIp-tPKQuVtkSrbJNP1COgVZQDIVuzPh7NG4M4btRvgHr3Q9C-X8T1R_svgRZZdFBqlnxbQER4DmAXFnA-Kjp144t0Iq4KvySv1FxdJcjwFy2yizOiUvaV5VZ4O8o3fcQIEQqdKWjYH7gCEluBR31OlXOHRMhc_730ICLnbNlhzAnYGbq_W-VKHaYUYB75drX8bG8THnHjWbVmM80gRtVEGWJ3Na_jyMqr2lyaoRpwtaBO8O8lh5CK21hkl1IhpJElTtwXA77L95ZA_R-ghCzvR_9KMHHxy5p-34uG0I9x8uo5PwYZiLA6DLoNc9dTkMPongAzZDKGML9_E0Yhlg",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "access_mode": "ro",
+        "allowed_origins": [
+          "https://app.conformance.test"
+        ],
+        "aud": "db9-conformance",
+        "cred_kind": "publishable",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-exchange-publishable",
+        "prefix_present": true,
+        "service_id": "svc-owner",
+        "sub": "svc-machine",
+        "tid": "tenant-conformance"
+      },
+      "bearer_gate": false
+    },
+    {
+      "name": "exchange_ak_sk",
+      "description": "Machine-exchange ak_sk credential: cred_kind=ak_sk with the issuer-asserted org scope carried in the signed token. Non-bearer kind.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJjcmVkX2tpbmQiOiJha19zayIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLWV4Y2hhbmdlLWFrLXNrIiwicHJlZml4X3ByZXNlbnQiOmZhbHNlLCJzY29wZSI6eyJvcmciOiJvcmctY29uZm9ybWFuY2UifSwic2VydmljZV9pZCI6InN2Yy1vd25lciIsInN1YiI6InN2Yy1tYWNoaW5lIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.a4wvIroziK3zx7mVbWuYc5F37QP3Mwq7MoZuRZSFWk5ZLp2iLKYmcMAQ3XfXcNi8pp9XLHHwST_Lt8AvwNuA7CnwwSsbt_0x8-Xers8j9J9t34oDhhbRUSMOiCIlUZnHWYmid16ngkPWQIAuusH4WUK2u3vBTFaTVAfX3JURAAKj0jhyucw-loqkbtsBb5P9aURzuCMhpXdUJAxJ6q3iTGkaTXgt40ZUku9UNA_4zhG5PpGVxIFT41FUf2csOzoWkNcmnunTTncx7C77ouGdp_PVVkx3ELhW9la68I-SyrjvKnU_Bddg521U_23BoqbADS7glNh5DnojvTq8TRG6Vw",
+      "expect": {
+        "verified": true
+      },
+      "claims": {
+        "aud": "db9-conformance",
+        "cred_kind": "ak_sk",
+        "exp": 4102444800,
+        "iat": 1767225600,
+        "iss": "https://auth9.conformance.test",
+        "jti": "conf-exchange-ak-sk",
+        "prefix_present": false,
+        "scope": {
+          "org": "org-conformance"
+        },
+        "service_id": "svc-owner",
+        "sub": "svc-machine",
+        "tid": "tenant-conformance"
+      },
+      "bearer_gate": false
+    },
+    {
+      "name": "negative_expired",
+      "description": "Well-signed session token whose exp is in the past - a verifier must reject on expiry.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6MTU3NzgzNjgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLW5lZ2F0aXZlLWV4cGlyZWQiLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWNvbmZvcm1hbmNlIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.mbIAY3raktZ1bEJkykqKvfuB2DnlfcTcazmHPE3FBNQyyf1kSuPeduyLNk5eaAWj0W4Dwc4JyDBYBwzAxjH3S-piOviHXCGTLAlJ2mxGgqZX-K2fwEtaIrbK97ANsfXb-Liqi-odgdaxOM9xd_Q60b6DDGrJ4wrwB9rurMiJPE2zA6vBpSYOsTIl0I-Ej9qyb5iX6pIfzhQQl-8bnwHqYEyd9ByDVKNok7kUL2L0OfJuQg3UAr36l9cuTMgQVD6DhKxqI9DniDGZwK4Wlarf7A-23LXzacYBcAuGHSy26caQoMmCBS3r_xbLceK4xxVN4bE-poc7f1N3BB-VVS3kYg",
+      "expect": {
+        "verified": false,
+        "reason": "expired"
+      }
+    },
+    {
+      "name": "negative_wrong_audience",
+      "description": "Well-signed token whose aud is not the configured audience - audience membership fails.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJzb21lLW90aGVyLXNlcnZpY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLW5lZ2F0aXZlLXdyb25nLWF1ZGllbmNlIiwicHJlZml4X3ByZXNlbnQiOmZhbHNlLCJzZXJ2aWNlX2lkIjoic3ZjLWxvZ2luIiwic3ViIjoidXNlci1jb25mb3JtYW5jZSIsInRpZCI6InRlbmFudC1jb25mb3JtYW5jZSJ9.DQSdl9_t6Bgs1MhGMu2dRdMszbD7YK7IQSqFLd_jLRWL15_bHvL8tIanSALZQT4x-EcB08neU1OHUsjR6OsSE_bqZvtGnYlS-zig_yp5yE_rEsnha1z85KUja5akt_l5s7OqYIv9VIoeXbxitJLP2KtnAfZLQAP0Y6s12TBa9QyhUBjicI-JLUlFYLopMPkuiDZfZqMD_azG0wzLlw1eCLeKlcKK-uw37ftDCbeIR_X-JnviEIfbxJoIEQ729VbwACytqPc78An28LCJz126kUWjxLyZCO5v5tvrf24qhp9FntSDCcXoHZ2rgkxLXsNudtujTe0mJD73l439i3I1-Q",
+      "expect": {
+        "verified": false,
+        "reason": "audience_mismatch"
+      }
+    },
+    {
+      "name": "negative_wrong_issuer",
+      "description": "Well-signed token whose iss is not the pinned issuer - the issuer pin rejects a token minted for another trust domain sharing this JWKS.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2V2aWwuZXhhbXBsZSIsImp0aSI6ImNvbmYtbmVnYXRpdmUtd3JvbmctaXNzdWVyIiwicHJlZml4X3ByZXNlbnQiOmZhbHNlLCJzZXJ2aWNlX2lkIjoic3ZjLWxvZ2luIiwic3ViIjoidXNlci1jb25mb3JtYW5jZSIsInRpZCI6InRlbmFudC1jb25mb3JtYW5jZSJ9.k4HYMaOWe1m_BVEQrAisiiYeAPFAJcw0o5NLTUpwbquPo0gizLxYcY5DFQtnsjZ1lWmdQj2CNJTGjABed5JGUm9SwwR1AaZsZtPNGC4MoR5L-Du9kXTLKziUc6k7vzXBVP_i8TOZOGa2lPVietmCdFYtXuNgDrl7xTzLsyMOM2Rhw_rLkbVRxzmvHtwTl4IrpGDdcHNwd5EFX_Z8j0jKA-a7UuTkCTVJM5hEQmrZhYnmWr-bPfCOMaTk7mNkySnBVyfsR_cc83u6xO_Vqu586qfWyVnIzYvbke2WJMsU0P86JqOno07eaXmOAuvXUm9HpKdv4wnCGa9X5Rnv3g1MQg",
+      "expect": {
+        "verified": false,
+        "reason": "issuer_mismatch"
+      }
+    },
+    {
+      "name": "negative_tampered_signature",
+      "description": "The session_password token with one signature byte flipped (payload intact) - the signature check fails.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLXNlc3Npb24tcGFzc3dvcmQiLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWNvbmZvcm1hbmNlIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.R-m3MsuGbazMk6Z8gd95DCkJhgGQEv5OiN1kWwcB9EHOz4Bek1dcgfJ639AIqSxriYq0bqXNdbfviQmkPLIpBewTpkBL5JA8fbg_92HAsavHuc6JOR3Bl6M--dSx-X0ebwMraK2vTtrCtUXAWMJITNbHm4Eyy1ueOFY-088baQiJ_QyAb3NOEDouQ3l0zuHjXJURhb3FAekf7ri02HVE1T7S0MM7c5r8hcZuiklVGL2am8ZZ61R4CR9R7QypWKryvXEHrCl6dfo8pyEY8EH8F1O3r156l8G975F9o7rpnyTM4Sbz56mr0rsCAacwqvpjvCnsHWfTMybTD7GGsxtFsg",
+      "expect": {
+        "verified": false,
+        "reason": "bad_signature"
+      }
+    },
+    {
+      "name": "negative_alg_confusion_hs256",
+      "description": "An HS256 token whose HMAC secret is the RSA public key PEM - the classic alg-confusion forgery. The RS256/ES256 allowlist must reject it before any signature check.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLW5lZ2F0aXZlLWFsZy1jb25mdXNpb24iLCJwcmVmaXhfcHJlc2VudCI6ZmFsc2UsInNlcnZpY2VfaWQiOiJzdmMtbG9naW4iLCJzdWIiOiJ1c2VyLWNvbmZvcm1hbmNlIiwidGlkIjoidGVuYW50LWNvbmZvcm1hbmNlIn0.DoaYsZ61W4GeY_ImkWOMzlKAfJMrUvybRxCFzyyUjOI",
+      "expect": {
+        "verified": false,
+        "reason": "bad_signature"
+      }
+    },
+    {
+      "name": "negative_unknown_kid",
+      "description": "A validly-signed token whose header kid is not in the published JWKS - the key source cannot resolve it.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLXVua25vd24ifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLW5lZ2F0aXZlLXVua25vd24ta2lkIiwicHJlZml4X3ByZXNlbnQiOmZhbHNlLCJzZXJ2aWNlX2lkIjoic3ZjLWxvZ2luIiwic3ViIjoidXNlci1jb25mb3JtYW5jZSIsInRpZCI6InRlbmFudC1jb25mb3JtYW5jZSJ9.tBbJNe1LTtHuwooZ0bItWg2BCrq_4lt-R87Z4gK7xFPthIUYkCjozwdvum3pX3Xuu58KBBwI9YDBE2CbyCHizfDN0S02YpGaHma8Pn8aCI9Gq_vCmXKlF9QD_TJ73bOoPdwZOst3flDPCGWGBebW-Ka7UZDaT3AzP1Rsal7yfFjnA1drYVmxsPoxnsMt9Ock89gYNLMnCaAYazQrec7YX-Sq_ImEorplEIc9kQZH0f1oRSKIiJfHYSrsPcpxrnn4rzuiThXBLKb_Fx3F7c3W35vW7UFFF3JHRQqVoE5Bo7-eTuXo6JPH77rP1nCD39ubqOZwf1yQmktVMm2OhY14SA",
+      "expect": {
+        "verified": false,
+        "reason": "unknown_key"
+      }
+    },
+    {
+      "name": "negative_not_yet_valid",
+      "description": "A token with a future nbf. auth9 strips caller nbf, so this is an adversarial vector that exercises a consumer's not-yet-valid rejection.",
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1dGg5LWNvbmZvcm1hbmNlLTIwMjYifQ.eyJhY3IiOiIxIiwiYW1yIjpbInB3ZCJdLCJhdWQiOiJkYjktY29uZm9ybWFuY2UiLCJhdXRoX3RpbWUiOjE3NjcyMjU2MDAsImNyZWRfa2luZCI6ImFjY2Vzc190b2tlbiIsImV4cCI6NDEwMjQ0NDgwMCwiaWF0IjoxNzY3MjI1NjAwLCJpc3MiOiJodHRwczovL2F1dGg5LmNvbmZvcm1hbmNlLnRlc3QiLCJqdGkiOiJjb25mLW5lZ2F0aXZlLW5vdC15ZXQtdmFsaWQiLCJuYmYiOjQxMDI0NDQ4MDAsInByZWZpeF9wcmVzZW50IjpmYWxzZSwic2VydmljZV9pZCI6InN2Yy1sb2dpbiIsInN1YiI6InVzZXItY29uZm9ybWFuY2UiLCJ0aWQiOiJ0ZW5hbnQtY29uZm9ybWFuY2UifQ.CrmfIJRgdBAoylQJke2ajzEXqYwEzDXy8zVNWAOmqE5qPvpDVYdXs9PiByC7dxWhuKyocuDcWSnIExSaQRYHVto9k4A219FG1IjSmommPccgN0GRIKHBOF92ZVze2tPRG-l8vfJQt8-ANRwLewr1ZyJZ2Dp1ubZ8ScSVMuhJfFdGdQW6ZeDbdvCiiPflUrMsGMkBksfxr1Tgnz1iUsUKuO0FZaWshaFGAnF0xn-n4Od-RyaPqLDvgNQelkX6yZL33TXYcDH05mzYUdS2F5LQtmG0TkPLnYU6LvviNi1XZNHYEjlvURznl3eKjB6Uwa2o4UCySV30jDXFRmaD-6CTkw",
+      "expect": {
+        "verified": false,
+        "reason": "not_yet_valid"
+      }
+    }
+  ]
+}
