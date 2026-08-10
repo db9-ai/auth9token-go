@@ -1,0 +1,65 @@
+name: Sys9 disk guard
+description: Ensure a workspace filesystem has enough free space, optionally cleaning it once before a job continues.
+
+inputs:
+  path:
+    description: Filesystem path whose available space should be checked.
+    required: false
+    default: ${{ github.workspace }}
+  minimum_free_gib:
+    description: Minimum available space required after cleanup, in GiB.
+    required: false
+    default: "15"
+  cleanup_command:
+    description: Optional shell command used once when available space is below the minimum.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Check workspace disk space
+      shell: bash
+      env:
+        DISK_GUARD_PATH: ${{ inputs.path }}
+        DISK_GUARD_MINIMUM_FREE_GIB: ${{ inputs.minimum_free_gib }}
+        DISK_GUARD_CLEANUP_COMMAND: ${{ inputs.cleanup_command }}
+      run: |
+        set -euo pipefail
+
+        if [[ ! "${DISK_GUARD_MINIMUM_FREE_GIB}" =~ ^[1-9][0-9]*$ ]]; then
+          echo "disk guard: minimum_free_gib must be a positive integer" >&2
+          exit 1
+        fi
+        if [[ ! -e "${DISK_GUARD_PATH}" ]]; then
+          echo "disk guard: path does not exist: ${DISK_GUARD_PATH}" >&2
+          exit 1
+        fi
+
+        minimum_free_kb=$((DISK_GUARD_MINIMUM_FREE_GIB * 1024 * 1024))
+        available_kb() {
+          local value
+          value="$(df -Pk "${DISK_GUARD_PATH}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${value}" =~ ^[0-9]+$ ]]; then
+            echo "disk guard: unable to read free space for ${DISK_GUARD_PATH}" >&2
+            return 1
+          fi
+          printf '%s\n' "${value}"
+        }
+
+        free_kb="$(available_kb)"
+        if (( free_kb < minimum_free_kb )); then
+          if [[ -z "${DISK_GUARD_CLEANUP_COMMAND}" ]]; then
+            echo "disk guard: free space ${free_kb}KiB is below ${minimum_free_kb}KiB and no cleanup command was supplied" >&2
+            exit 1
+          fi
+          echo "disk guard: free space ${free_kb}KiB is below ${minimum_free_kb}KiB; running targeted cleanup" >&2
+          bash -euo pipefail -c "${DISK_GUARD_CLEANUP_COMMAND}"
+          free_kb="$(available_kb)"
+          if (( free_kb < minimum_free_kb )); then
+            echo "disk guard: free space remains ${free_kb}KiB after cleanup; refusing to continue" >&2
+            exit 1
+          fi
+        fi
+
+        echo "disk guard: ${free_kb}KiB available at ${DISK_GUARD_PATH}"
