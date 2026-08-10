@@ -1,2 +1,2 @@
 self-hosted-runner:
-  labels: [self-hosted, linux, "arch:amd64", "arch:arm64", default, on-demand, ghr-ec2-vcpus:1, ghr-ec2-vcpus:2, ghr-ec2-vcpus:4, ghr-ec2-vcpus:8, ghr-ec2-vcpus:16, ghr-ec2-memory-gib:8, ghr-ec2-memory-gib:16, ghr-ec2-memory-gib:32, ghr-ec2-memory-gib:64]
+  labels: [self-hosted, linux, "arch:amd64", "arch:arm64", default, on-demand, trusted-public-main, ghr-ec2-vcpus:1, ghr-ec2-vcpus:2, ghr-ec2-vcpus:4, ghr-ec2-vcpus:8, ghr-ec2-vcpus:16, ghr-ec2-memory-gib:8, ghr-ec2-memory-gib:16, ghr-ec2-memory-gib:32, ghr-ec2-memory-gib:64]
