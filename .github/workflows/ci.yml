@@ -7,9 +7,14 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, default, 'arch:amd64', 'ghr-ec2-vcpus:2']
     steps:
       - uses: actions/checkout@v4
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25.x"

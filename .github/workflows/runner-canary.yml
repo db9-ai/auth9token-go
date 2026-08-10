@@ -1,0 +1,173 @@
+name: Runner canary
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  round-1:
+    name: Runner canary 1
+    runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
+
+      - name: Record sanitized runner evidence
+        shell: bash
+        env:
+          CANARY_ROUND: "1"
+          EXPECTED_LABELS: self-hosted,linux,default,arch:amd64,ghr-ec2-vcpus:1
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ARCH}" != "X64" ]]; then
+            echo "runner canary: expected X64 architecture, got ${RUNNER_ARCH}" >&2
+            exit 1
+          fi
+          available_kb="$(df -Pk "${GITHUB_WORKSPACE}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${available_kb}" =~ ^[0-9]+$ ]]; then
+            echo "runner canary: unable to read workspace free space" >&2
+            exit 1
+          fi
+          echo "round=${CANARY_ROUND} labels=${EXPECTED_LABELS} architecture=${RUNNER_ARCH} available_kb=${available_kb} status=success"
+
+  round-2:
+    name: Runner canary 2
+    needs: round-1
+    runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
+
+      - name: Record sanitized runner evidence
+        shell: bash
+        env:
+          CANARY_ROUND: "2"
+          EXPECTED_LABELS: self-hosted,linux,default,arch:amd64,ghr-ec2-vcpus:1
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ARCH}" != "X64" ]]; then
+            echo "runner canary: expected X64 architecture, got ${RUNNER_ARCH}" >&2
+            exit 1
+          fi
+          available_kb="$(df -Pk "${GITHUB_WORKSPACE}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${available_kb}" =~ ^[0-9]+$ ]]; then
+            echo "runner canary: unable to read workspace free space" >&2
+            exit 1
+          fi
+          echo "round=${CANARY_ROUND} labels=${EXPECTED_LABELS} architecture=${RUNNER_ARCH} available_kb=${available_kb} status=success"
+
+  round-3:
+    name: Runner canary 3
+    needs: round-2
+    runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
+
+      - name: Record sanitized runner evidence
+        shell: bash
+        env:
+          CANARY_ROUND: "3"
+          EXPECTED_LABELS: self-hosted,linux,default,arch:amd64,ghr-ec2-vcpus:1
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ARCH}" != "X64" ]]; then
+            echo "runner canary: expected X64 architecture, got ${RUNNER_ARCH}" >&2
+            exit 1
+          fi
+          available_kb="$(df -Pk "${GITHUB_WORKSPACE}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${available_kb}" =~ ^[0-9]+$ ]]; then
+            echo "runner canary: unable to read workspace free space" >&2
+            exit 1
+          fi
+          echo "round=${CANARY_ROUND} labels=${EXPECTED_LABELS} architecture=${RUNNER_ARCH} available_kb=${available_kb} status=success"
+
+  round-4:
+    name: Runner canary 4
+    needs: round-3
+    runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
+
+      - name: Record sanitized runner evidence
+        shell: bash
+        env:
+          CANARY_ROUND: "4"
+          EXPECTED_LABELS: self-hosted,linux,default,arch:amd64,ghr-ec2-vcpus:1
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ARCH}" != "X64" ]]; then
+            echo "runner canary: expected X64 architecture, got ${RUNNER_ARCH}" >&2
+            exit 1
+          fi
+          available_kb="$(df -Pk "${GITHUB_WORKSPACE}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${available_kb}" =~ ^[0-9]+$ ]]; then
+            echo "runner canary: unable to read workspace free space" >&2
+            exit 1
+          fi
+          echo "round=${CANARY_ROUND} labels=${EXPECTED_LABELS} architecture=${RUNNER_ARCH} available_kb=${available_kb} status=success"
+
+  round-5:
+    name: Runner canary 5
+    needs: round-4
+    runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Guard workspace disk
+        uses: ./.github/actions/sys9-disk-guard
+        with:
+          path: ${{ github.workspace }}
+          minimum_free_gib: "15"
+
+      - name: Record sanitized runner evidence
+        shell: bash
+        env:
+          CANARY_ROUND: "5"
+          EXPECTED_LABELS: self-hosted,linux,default,arch:amd64,ghr-ec2-vcpus:1
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ARCH}" != "X64" ]]; then
+            echo "runner canary: expected X64 architecture, got ${RUNNER_ARCH}" >&2
+            exit 1
+          fi
+          available_kb="$(df -Pk "${GITHUB_WORKSPACE}" | awk 'NR == 2 {print $4}')"
+          if [[ ! "${available_kb}" =~ ^[0-9]+$ ]]; then
+            echo "runner canary: unable to read workspace free space" >&2
+            exit 1
+          fi
+          echo "round=${CANARY_ROUND} labels=${EXPECTED_LABELS} architecture=${RUNNER_ARCH} available_kb=${available_kb} status=success"
