@@ -1,7 +1,6 @@
 name: Runner canary
 
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -10,9 +9,6 @@ permissions:
 jobs:
   round-1:
     name: Runner canary 1
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, default, "arch:amd64", "ghr-ec2-vcpus:1"]
     timeout-minutes: 3
     steps:

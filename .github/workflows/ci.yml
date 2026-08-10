@@ -10,7 +10,6 @@ jobs:
     runs-on: >-
       ${{
         github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.fork &&
         'ubuntu-latest' ||
         fromJSON('["self-hosted","linux","default","arch:amd64","ghr-ec2-vcpus:2"]')
       }}
