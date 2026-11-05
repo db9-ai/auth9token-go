@@ -92,7 +92,8 @@ type JWKSCache struct {
 	keys         map[string]crypto.PublicKey // kid → *rsa.PublicKey | *ecdsa.PublicKey
 	negKid       map[string]time.Time        // kid → expiry
 	fetchedAt    time.Time                   // last successful fetch
-	lastFetchErr error                       // last refresh error (informational)
+	lastFetchErr error                       // last refresh error
+	retryAfter   time.Time                   // failed-refresh cooldown deadline
 
 	sf singleflight.Group
 }
@@ -140,7 +141,8 @@ var errJWKSBodyTooLarge = errors.New("auth9token: jwks body exceeds size cap")
 // NewJWKSCache constructs a cache pointing at jwksURL. positiveTTL is the
 // fallback freshness window; auth9's response `Cache-Control: max-age`
 // overrides it. Non-positive TTLs fall back to the package defaults (60s / 10s)
-// so callers may pass 0 to accept them.
+// so callers may pass 0 to accept them. The negative TTL also bounds retries
+// after a failed refresh; caller cancellation does not start this cooldown.
 //
 // jwksURL must be https, or an http URL whose host is loopback (localhost /
 // 127.0.0.0/8 / ::1) — otherwise construction fails, since fetching the
@@ -239,7 +241,23 @@ func (c *JWKSCache) Get(ctx context.Context, kid string) (crypto.PublicKey, erro
 	// Refresh path, singleflight-deduped. The key "jwks" collapses all
 	// concurrent refresh requests onto one HTTP fetch.
 	_, err, _ := c.sf.Do("jwks", func() (any, error) {
-		return nil, c.refresh(ctx)
+		// Check inside singleflight too: a caller queued after a failed refresh
+		// must not start another fetch merely because the previous flight ended.
+		c.mu.RLock()
+		retryAfter, lastErr := c.retryAfter, c.lastFetchErr
+		c.mu.RUnlock()
+		if lastErr != nil && time.Now().Before(retryAfter) {
+			return nil, lastErr
+		}
+		err := c.refresh(ctx)
+		// A request cancellation must not impose a new cache-wide cooldown.
+		// Keep the existing refresh context and stale-key fallback behavior.
+		if err != nil && ctx.Err() == nil {
+			c.mu.Lock()
+			c.retryAfter = time.Now().Add(c.negativeTTL)
+			c.mu.Unlock()
+		}
+		return nil, err
 	})
 	if err != nil {
 		// Refresh failed — fall through to whatever we had cached.
@@ -299,6 +317,7 @@ func (c *JWKSCache) refresh(ctx context.Context) error {
 				}
 			}
 			c.lastFetchErr = nil
+			c.retryAfter = time.Time{}
 			c.mu.Unlock()
 			return nil
 		}
