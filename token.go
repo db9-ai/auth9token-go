@@ -102,17 +102,15 @@ func (r Reason) String() string {
 
 // Error is the single error type Verify returns. Reason is the classification;
 // Cause is the underlying library/transport error, for server-side logs only —
-// never echo it to a client.
+// never echo it to a client. Error() renders only the stable Reason; Cause and
+// Unwrap remain available for explicit internal diagnostics.
 type Error struct {
 	Reason Reason
 	Cause  error
 }
 
 func (e *Error) Error() string {
-	if e.Cause == nil {
-		return "auth9token: " + e.Reason.String()
-	}
-	return fmt.Sprintf("auth9token: %s: %v", e.Reason.String(), e.Cause)
+	return "auth9token: " + e.Reason.String()
 }
 
 func (e *Error) Unwrap() error { return e.Cause }

@@ -9,6 +9,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -361,4 +362,44 @@ func TestVerify_KeySourceInternalError_Rejected(t *testing.T) {
 	s := rsaSigner(t, "rsa-1")
 	v := verifier(t, fakeKeys{err: errors.New("jwks endpoint down")}, testIssuer)
 	assertReason(t, mustErr(Verify[testClaims](context.Background(), v, s.sign(t, validClaims()))), ReasonInternal)
+}
+
+// Matching key types and valid signatures make this sensitive to removal of
+// the allowlist, unlike HMAC-for-RSA tests rejected by the JWT key type check.
+func TestVerify_DisallowedAsymmetricAlgs_Rejected(t *testing.T) {
+	s := rsaSigner(t, "rsa-1")
+	v := verifier(t, source(s), testIssuer)
+	for _, method := range []jwt.SigningMethod{jwt.SigningMethodRS384, jwt.SigningMethodRS512, jwt.SigningMethodPS256} {
+		t.Run(method.Alg(), func(t *testing.T) {
+			s.method = method
+			raw := s.sign(t, validClaims())
+			if _, err := jwt.Parse(raw, func(*jwt.Token) (any, error) { return s.pub, nil }); err != nil {
+				t.Fatalf("control signature verification: %v", err)
+			}
+			assertReason(t, mustErr(Verify[testClaims](context.Background(), v, raw)), ReasonBadSignature)
+		})
+	}
+}
+
+func TestVerify_ErrorRenderingOmitsCause(t *testing.T) {
+	s := rsaSigner(t, "rsa-1")
+	cause := errors.New("fetch https://internal.example.invalid/jwks: internal transport detail")
+	v := verifier(t, fakeKeys{err: cause}, testIssuer)
+	err := mustErr(Verify[testClaims](context.Background(), v, s.sign(t, validClaims())))
+	assertReason(t, err, ReasonInternal)
+	for _, rendered := range []string{err.Error(), fmt.Sprint(err), fmt.Sprintf("%+v", err), fmt.Errorf("request failed: %w", err).Error()} {
+		if strings.Contains(rendered, "internal.example.invalid") || strings.Contains(rendered, "transport detail") {
+			t.Fatal("default error formatting exposed the internal cause")
+		}
+	}
+	if err.Error() != "auth9token: internal" {
+		t.Fatalf("unexpected public error: %s", err)
+	}
+	if !errors.Is(err, cause) {
+		t.Fatal("underlying error must remain available through Unwrap")
+	}
+	var classified *Error
+	if !errors.As(err, &classified) || classified.Cause == nil {
+		t.Fatal("classified cause must remain available")
+	}
 }
