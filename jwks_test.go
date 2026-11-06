@@ -615,56 +615,6 @@ func TestJWKSCache_RetainsLastGoodOnFetchFailure(t *testing.T) {
 	}
 }
 
-// A stampede of concurrent Gets on a cold cache must collapse to one HTTP fetch
-// via singleflight, not one fetch per goroutine. Run under -race it also
-// exercises the concurrent Get path for data races. The endpoint blocks until
-// released so every caller is in flight before the single fetch completes.
-func TestJWKSCache_GetStampedeSingleFlight(t *testing.T) {
-	const goroutines = 64
-	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
-	body, _ := json.Marshal(map[string]any{"keys": []map[string]any{{
-		"kty": "RSA", "kid": "known", "alg": "RS256", "use": "sig",
-		"n": base64.RawURLEncoding.EncodeToString(priv.N.Bytes()),
-		"e": base64.RawURLEncoding.EncodeToString([]byte{0x01, 0x00, 0x01}),
-	}}})
-	var fetches int32
-	release := make(chan struct{})
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		atomic.AddInt32(&fetches, 1)
-		<-release // hold the fetch open so every concurrent caller coalesces onto it
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write(body)
-	}))
-	t.Cleanup(srv.Close)
-
-	cache := mustCache(t, srv.URL, 60*time.Second, 10*time.Second)
-	ctx := context.Background()
-	start := make(chan struct{})
-	errs := make([]error, goroutines)
-	var wg sync.WaitGroup
-	for i := 0; i < goroutines; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			<-start
-			_, errs[i] = cache.Get(ctx, "known")
-		}(i)
-	}
-	close(start)                      // release all callers together
-	time.Sleep(50 * time.Millisecond) // let them all park in the in-flight fetch
-	close(release)                    // complete the single fetch
-	wg.Wait()
-
-	for i, err := range errs {
-		if err != nil {
-			t.Fatalf("goroutine %d: Get failed: %v", i, err)
-		}
-	}
-	if got := atomic.LoadInt32(&fetches); got != 1 {
-		t.Errorf("HTTP fetches under a %d-way stampede = %d, want 1 (singleflight dedup)", goroutines, got)
-	}
-}
-
 func TestJWKSCache_StatusTracksOutageAndRecovery(t *testing.T) {
 	s := ecSigner(t, "known")
 	body, _ := json.Marshal(map[string]any{"keys": []map[string]any{jwkFor(s)}})
@@ -758,5 +708,55 @@ func TestJWKSCache_StatusCountsCanceledRefresh(t *testing.T) {
 	got := rig.cache.Status()
 	if !got.LastRefreshFailed || got.RefreshFailures != 1 || got.StaleKeyFallbacks != 0 || !got.LastSuccessfulRefresh.IsZero() {
 		t.Fatalf("canceled refresh status = %+v", got)
+	}
+}
+
+// A stampede of concurrent Gets on a cold cache must collapse to one HTTP fetch
+// via singleflight, not one fetch per goroutine. Run under -race it also
+// exercises the concurrent Get path for data races. The endpoint blocks until
+// released so every caller is in flight before the single fetch completes.
+func TestJWKSCache_GetStampedeSingleFlight(t *testing.T) {
+	const goroutines = 64
+	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
+	body, _ := json.Marshal(map[string]any{"keys": []map[string]any{{
+		"kty": "RSA", "kid": "known", "alg": "RS256", "use": "sig",
+		"n": base64.RawURLEncoding.EncodeToString(priv.N.Bytes()),
+		"e": base64.RawURLEncoding.EncodeToString([]byte{0x01, 0x00, 0x01}),
+	}}})
+	var fetches int32
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&fetches, 1)
+		<-release // hold the fetch open so every concurrent caller coalesces onto it
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(body)
+	}))
+	t.Cleanup(srv.Close)
+
+	cache := mustCache(t, srv.URL, 60*time.Second, 10*time.Second)
+	ctx := context.Background()
+	start := make(chan struct{})
+	errs := make([]error, goroutines)
+	var wg sync.WaitGroup
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			<-start
+			_, errs[i] = cache.Get(ctx, "known")
+		}(i)
+	}
+	close(start)                      // release all callers together
+	time.Sleep(50 * time.Millisecond) // let them all park in the in-flight fetch
+	close(release)                    // complete the single fetch
+	wg.Wait()
+
+	for i, err := range errs {
+		if err != nil {
+			t.Fatalf("goroutine %d: Get failed: %v", i, err)
+		}
+	}
+	if got := atomic.LoadInt32(&fetches); got != 1 {
+		t.Errorf("HTTP fetches under a %d-way stampede = %d, want 1 (singleflight dedup)", goroutines, got)
 	}
 }
