@@ -613,6 +613,10 @@ func TestJWKSCache_RetainsLastGoodOnFetchFailure(t *testing.T) {
 	if _, err := cache.Get(ctx, "k1"); err != nil {
 		t.Fatalf("k1 should still resolve from retained last-good map: %v", err)
 	}
+	// The same fallback must remain available during failure cooldown.
+	if _, err := cache.Get(ctx, "k1"); err != nil {
+		t.Fatalf("cooldown changed last-good fallback: %v", err)
+	}
 }
 
 // A stampede of concurrent Gets on a cold cache must collapse to one HTTP fetch
@@ -662,5 +666,75 @@ func TestJWKSCache_GetStampedeSingleFlight(t *testing.T) {
 	}
 	if got := atomic.LoadInt32(&fetches); got != 1 {
 		t.Errorf("HTTP fetches under a %d-way stampede = %d, want 1 (singleflight dedup)", goroutines, got)
+	}
+}
+
+// Failed refreshes have a global cooldown, including for distinct attacker kids.
+// Keep transport failures distinct from an authoritative unknown-key response.
+func TestJWKSCache_FailureCooldownAndRecovery(t *testing.T) {
+	s := ecSigner(t, "known")
+	body, _ := json.Marshal(map[string]any{"keys": []map[string]any{jwkFor(s)}})
+	var fetches atomic.Int32
+	var down atomic.Bool
+	down.Store(true)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fetches.Add(1)
+		if down.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+	cache := mustCache(t, srv.URL, time.Minute, time.Hour)
+	ctx := context.Background()
+	_, firstErr := cache.Get(ctx, "missing")
+	if firstErr == nil || errors.Is(firstErr, ErrUnknownKid) {
+		t.Fatal("outage must return a transport failure")
+	}
+	initial := fetches.Load()
+	if initial != 3 {
+		t.Fatalf("initial retry sequence fetched %d times, want 3", initial)
+	}
+	var wg sync.WaitGroup
+	for i := 0; i < 32; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			_, err := cache.Get(ctx, fmt.Sprintf("bogus-%d", i))
+			if err != firstErr {
+				t.Errorf("cooldown did not preserve the fetch error")
+			}
+		}(i)
+	}
+	wg.Wait()
+	if fetches.Load() != initial {
+		t.Fatal("unknown kids bypassed failure cooldown")
+	}
+	down.Store(false)
+	// Advance the private deadline instead of sleeping for the configured hour.
+	cache.mu.Lock()
+	cache.retryAfter = time.Now().Add(-time.Second)
+	cache.mu.Unlock()
+	if _, err := cache.Get(ctx, s.kid); err != nil {
+		t.Fatalf("recovery: %v", err)
+	}
+	if fetches.Load() != initial+1 {
+		t.Fatal("cooldown expiry did not permit recovery")
+	}
+	if _, err := cache.Get(ctx, "still-missing"); !errors.Is(err, ErrUnknownKid) {
+		t.Fatal("successful refresh must restore unknown-key classification")
+	}
+}
+
+func TestJWKSCache_CanceledRefreshDoesNotStartCooldown(t *testing.T) {
+	rig := newECJWKSRig(t, "")
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := rig.cache.Get(ctx, rig.kid); !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled fetch: %v", err)
+	}
+	if _, err := rig.cache.Get(context.Background(), rig.kid); err != nil {
+		t.Fatalf("canceled request blocked next caller: %v", err)
 	}
 }
