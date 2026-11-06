@@ -619,6 +619,102 @@ func TestJWKSCache_RetainsLastGoodOnFetchFailure(t *testing.T) {
 	}
 }
 
+func TestJWKSCache_StatusTracksOutageAndRecovery(t *testing.T) {
+	s := ecSigner(t, "known")
+	body, _ := json.Marshal(map[string]any{"keys": []map[string]any{jwkFor(s)}})
+	var down atomic.Bool
+	var requests atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		if down.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+	cache := mustCache(t, srv.URL, time.Minute, time.Nanosecond)
+	if got := cache.Status(); got != (JWKSCacheStatus{}) {
+		t.Fatalf("new cache status = %+v", got)
+	}
+	if requests.Load() != 0 {
+		t.Fatal("reading status triggered a fetch")
+	}
+
+	// Poll while Gets mutate cache state, as a monitoring collector would.
+	stop := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				_ = cache.Status()
+			}
+		}
+	}()
+	defer func() { close(stop); wg.Wait() }()
+	ctx := context.Background()
+	if _, err := cache.Get(ctx, s.kid); err != nil {
+		t.Fatal(err)
+	}
+	healthy := cache.Status()
+	if healthy.LastSuccessfulRefresh.IsZero() || healthy.LastRefreshFailed || healthy.RefreshFailures != 0 || healthy.StaleKeyFallbacks != 0 {
+		t.Fatalf("healthy status = %+v", healthy)
+	}
+	// Expire the cache without a wall-clock wait.
+	cache.mu.Lock()
+	cache.fetchedAt = time.Now().Add(-time.Hour)
+	cache.mu.Unlock()
+	lastSuccess := cache.Status().LastSuccessfulRefresh
+	down.Store(true)
+	if _, err := cache.Get(ctx, s.kid); err != nil {
+		t.Fatalf("stale fallback changed: %v", err)
+	}
+	failed := cache.Status()
+	if !failed.LastRefreshFailed || failed.RefreshFailures != 1 || failed.StaleKeyFallbacks != 1 || failed.LastSuccessfulRefresh != lastSuccess {
+		t.Fatalf("outage status = %+v", failed)
+	}
+	if requests.Load() != 4 {
+		t.Fatalf("want initial request and three outage attempts, got %d", requests.Load())
+	}
+	if _, err := cache.Get(ctx, "missing"); err == nil || errors.Is(err, ErrUnknownKid) {
+		t.Fatal("missing key during outage must retain fetch error")
+	}
+	failed = cache.Status()
+	if failed.RefreshFailures != 2 || failed.StaleKeyFallbacks != 1 {
+		t.Fatalf("missing key counted as a fallback: %+v", failed)
+	}
+	down.Store(false)
+	if _, err := cache.Get(ctx, s.kid); err != nil {
+		t.Fatal(err)
+	}
+	recovered := cache.Status()
+	if recovered.LastRefreshFailed || !recovered.LastSuccessfulRefresh.After(lastSuccess) || recovered.RefreshFailures != 2 || recovered.StaleKeyFallbacks != 1 {
+		t.Fatalf("recovered status = %+v", recovered)
+	}
+	// Returned snapshots are values, independent of subsequent cache changes.
+	if !failed.LastRefreshFailed {
+		t.Fatal("recovery mutated an earlier snapshot")
+	}
+}
+
+func TestJWKSCache_StatusCountsCanceledRefresh(t *testing.T) {
+	rig := newECJWKSRig(t, "")
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := rig.cache.Get(ctx, rig.kid); !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled refresh: %v", err)
+	}
+	got := rig.cache.Status()
+	if !got.LastRefreshFailed || got.RefreshFailures != 1 || got.StaleKeyFallbacks != 0 || !got.LastSuccessfulRefresh.IsZero() {
+		t.Fatalf("canceled refresh status = %+v", got)
+	}
+}
+
 // A stampede of concurrent Gets on a cold cache must collapse to one HTTP fetch
 // via singleflight, not one fetch per goroutine. Run under -race it also
 // exercises the concurrent Get path for data races. The endpoint blocks until
