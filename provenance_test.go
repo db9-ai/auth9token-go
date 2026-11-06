@@ -22,6 +22,9 @@ func TestProvenanceClaims_APV(t *testing.T) {
 		{"present_v1", `1`, 1, true},
 		{"present_v2", `2`, 2, true},
 		{"absent", ``, 0, false},
+		{"null", `null`, 0, false},
+		{"whitespace_null", ` null `, 0, false},
+		{"zero", `0`, 0, true},
 		{"malformed_string", `"1"`, 0, false},
 		{"malformed_object", `{"v":1}`, 0, false},
 	}
@@ -130,5 +133,33 @@ func TestVerify_ProvenanceClaims_LegacyFlat(t *testing.T) {
 	}
 	if _, ok := res.Claims.Caller(); ok {
 		t.Error("a flat token must report caller absent")
+	}
+}
+
+// A valid signature does not make JSON null a provenance marker or object.
+func TestVerify_ProvenanceClaims_NullContainers(t *testing.T) {
+	s := rsaSigner(t, "rsa-1")
+	v := verifier(t, source(s), testIssuer)
+	for _, raw := range []string{`null`, ` null `, `{}`} {
+		claims := &ProvenanceClaims{RegisteredClaims: validClaims().RegisteredClaims,
+			APVRaw: json.RawMessage(`null`), CallerRaw: json.RawMessage(raw)}
+		res, err := Verify[ProvenanceClaims](context.Background(), v, s.sign(t, claims))
+		if err != nil {
+			t.Fatalf("verify: %v", err)
+		}
+		if _, ok := res.Claims.APV(); ok {
+			t.Fatal("null apv must report absent")
+		}
+		m, ok := res.Claims.Caller()
+		if ok != (raw == `{}`) {
+			t.Fatalf("caller presence = %v for %s", ok, raw)
+		}
+		if ok && m == nil {
+			t.Fatal("empty object must remain a present container")
+		}
+		var value string
+		if present, err := res.Claims.CallerClaim("tid", &value); present || err != nil {
+			t.Fatalf("missing caller claim: present=%v err=%v", present, err)
+		}
 	}
 }

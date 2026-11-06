@@ -51,11 +51,11 @@ func (p *ProvenanceClaims) APV() (int, bool) {
 	if len(p.APVRaw) == 0 {
 		return 0, false
 	}
-	var v int
-	if err := json.Unmarshal(p.APVRaw, &v); err != nil {
+	var v *int
+	if err := json.Unmarshal(p.APVRaw, &v); err != nil || v == nil {
 		return 0, false
 	}
-	return v, true
+	return *v, true
 }
 
 // Caller returns the reserved `caller` container — the claims the calling
@@ -68,7 +68,7 @@ func (p *ProvenanceClaims) Caller() (map[string]json.RawMessage, bool) {
 		return nil, false
 	}
 	var m map[string]json.RawMessage
-	if err := json.Unmarshal(p.CallerRaw, &m); err != nil {
+	if err := json.Unmarshal(p.CallerRaw, &m); err != nil || m == nil {
 		return nil, false
 	}
 	return m, true
