@@ -95,6 +95,10 @@ type JWKSCache struct {
 	lastFetchErr error                       // last refresh error (informational)
 
 	sf singleflight.Group
+
+	// Protected by mu.
+	refreshFailures   uint64 // completed failed refresh sequences
+	staleKeyFallbacks uint64 // Gets that served a key after refresh failure
 }
 
 // Option configures a JWKSCache at construction.
@@ -136,6 +140,37 @@ var errJWKSRedirect = errors.New("auth9token: refusing to follow JWKS redirect")
 // The read is capped so an oversize (or endless) body is refused explicitly,
 // not silently truncated into a body that then fails as a JSON-parse accident.
 var errJWKSBodyTooLarge = errors.New("auth9token: jwks body exceeds size cap")
+
+// JWKSCacheStatus is an aggregate operational snapshot for one cache instance.
+// Counters accumulate for the lifetime of the cache. No keys, key IDs, tokens,
+// caller information, URLs, or raw transport errors are included.
+type JWKSCacheStatus struct {
+	// LastSuccessfulRefresh is zero until the first successful refresh.
+	LastSuccessfulRefresh time.Time
+	// LastRefreshFailed reports whether the most recently completed refresh
+	// failed, including caller cancellation. False also covers no refresh yet.
+	LastRefreshFailed bool
+	// RefreshFailures counts failed refresh sequences, not individual HTTP
+	// attempts or callers sharing a singleflight refresh.
+	RefreshFailures uint64
+	// StaleKeyFallbacks counts Get calls that returned a cached key after a
+	// refresh failure, including calls that share a failed refresh.
+	StaleKeyFallbacks uint64
+}
+
+// Status returns a consistent snapshot without fetching keys or changing cache
+// policy. Safe to call concurrently with Get. Applications can poll this from
+// their operational monitoring; the library does not install an HTTP endpoint.
+func (c *JWKSCache) Status() JWKSCacheStatus {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return JWKSCacheStatus{
+		LastSuccessfulRefresh: c.fetchedAt,
+		LastRefreshFailed:     c.lastFetchErr != nil,
+		RefreshFailures:       c.refreshFailures,
+		StaleKeyFallbacks:     c.staleKeyFallbacks,
+	}
+}
 
 // NewJWKSCache constructs a cache pointing at jwksURL. positiveTTL is the
 // fallback freshness window; auth9's response `Cache-Control: max-age`
@@ -243,9 +278,12 @@ func (c *JWKSCache) Get(ctx context.Context, kid string) (crypto.PublicKey, erro
 	})
 	if err != nil {
 		// Refresh failed — fall through to whatever we had cached.
-		c.mu.RLock()
+		c.mu.Lock()
 		key, ok := c.keys[kid]
-		c.mu.RUnlock()
+		if ok {
+			c.staleKeyFallbacks++
+		}
+		c.mu.Unlock()
 		if ok {
 			return key, nil
 		}
@@ -307,6 +345,7 @@ func (c *JWKSCache) refresh(ctx context.Context) error {
 		case <-fetchCtx.Done():
 			c.mu.Lock()
 			c.lastFetchErr = lastErr
+			c.refreshFailures++
 			c.mu.Unlock()
 			return lastErr
 		case <-time.After(backoff):
@@ -318,6 +357,7 @@ func (c *JWKSCache) refresh(ctx context.Context) error {
 	}
 	c.mu.Lock()
 	c.lastFetchErr = lastErr
+	c.refreshFailures++
 	c.mu.Unlock()
 	return lastErr
 }
